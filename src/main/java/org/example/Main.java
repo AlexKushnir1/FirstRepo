@@ -1,20 +1,57 @@
 package org.example;
 
+import java.util.Scanner;
+
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
-
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
-
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
-            System.out.println("I changed some code and want to commit");
+        long binary1, binary2, multiply = 0;
+        int digit, factor = 1;
+        Scanner in = new Scanner(System.in);
+        System.out.print("Input the first binary number: ");
+        binary1 = in.nextLong();
+        System.out.print("Input the second binary number: ");
+        binary2 = in.nextLong();
+        while (binary2 != 0)
+        {
+            digit = (int)(binary2 % 10);
+            if (digit == 1)
+            {
+                binary1 = binary1 * factor;
+                multiply = binaryproduct((int) binary1, (int) multiply);
+            }
+            else
+            {
+                binary1 = binary1 * factor;
+            }
+            binary2 = binary2 / 10;
+            factor = 10;
         }
+        System.out.print("Product of two binary numbers: " + multiply+"\n");
+    }
+    static int binaryproduct(int binary1, int binary2)
+    {
+        int i = 0, remainder = 0;
+        int[] sum = new int[20];
+        int binary_prod_result = 0;
+
+        while (binary1 != 0 || binary2 != 0)
+        {
+            sum[i++] = (binary1 % 10 + binary2 % 10 + remainder) % 2;
+            remainder = (binary1 % 10 + binary2 % 10 + remainder) / 2;
+            binary1 = binary1 / 10;
+            binary2 = binary2 / 10;
+        }
+        if (remainder != 0)
+        {
+            sum[i++] = remainder;
+        }
+        --i;
+        while (i >= 0)
+        {
+            binary_prod_result = binary_prod_result * 10 + sum[i--];
+        }
+        return binary_prod_result;
     }
 }
