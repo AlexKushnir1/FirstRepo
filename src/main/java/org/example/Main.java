@@ -4,6 +4,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.example.handlers.PostDataHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,7 +19,7 @@ public class Main {
 
         // Create a context for a simple "Hello, World!" response
         server.createContext("/", new HelloWorldHandler());
-
+        server.createContext("/postdata", new PostDataHandler());
         // Start the server
         server.setExecutor(null); // Use the default executor
         server.start();
