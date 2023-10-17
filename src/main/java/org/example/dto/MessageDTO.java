@@ -8,11 +8,4 @@ public class MessageDTO {
     public String getMessage() {
         return message;
     }
-
-    public MessageDTO() {
-    }
-
-    public MessageDTO(String message) {
-        this.message = message;
-    }
 }

@@ -30,7 +30,10 @@ public class PostDataHandler implements HttpHandler {
                 sendResponse(httpExchange, "Error parsing JSON data. Error:" + e);
             }
         } else {
-            sendResponse(httpExchange, "This endpoint only accepts POST requests.");
+            String response = "This endpoint only accepts POST requests.";
+            httpExchange.sendResponseHeaders(400, response.length());
+            OutputStream os = httpExchange.getResponseBody();
+            os.write(response.getBytes());
         }
 
     }
