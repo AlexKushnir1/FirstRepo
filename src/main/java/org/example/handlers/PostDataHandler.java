@@ -1,5 +1,7 @@
 package org.example.handlers;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,38 +13,42 @@ import java.io.OutputStream;
 
 public class PostDataHandler implements HttpHandler {
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void handle(HttpExchange httpExchange) {
         if ("POST".equals(httpExchange.getRequestMethod())) {
             // Read the request body as a JSON string
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            InputStream requestBody = httpExchange.getRequestBody();
+            MessageDTO postData = null;
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                InputStream requestBody = httpExchange.getRequestBody();
-                MessageDTO postData = objectMapper.readValue(requestBody, MessageDTO.class);
-
-                // Access the parsed data
-                String message = postData.getMessage();
-
-                // Process the data as needed
-                String response = "Received POST data: " + message;
-                sendResponse(httpExchange, response);
+                postData = objectMapper.readValue(requestBody, MessageDTO.class);
+            } catch (StreamReadException e) {
+                sendResponse(httpExchange, "Server stream reading error", 500);
+            } catch (DatabindException e) {
+                sendResponse(httpExchange, "Bad request", 400);
             } catch (IOException e) {
-                // Handle JSON parsing errors
-                sendResponse(httpExchange, "Error parsing JSON data. Error:" + e);
+                sendResponse(httpExchange, "Server error", 500);
             }
+            // Access the parsed data
+            String message = postData.getMessage();
+
+            // Process the data as needed
+            String response = "Received POST data: " + message;
+            sendResponse(httpExchange, response, 200);
         } else {
-            String response = "This endpoint only accepts POST requests.";
-            httpExchange.sendResponseHeaders(400, response.length());
-            OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
+            sendResponse(httpExchange, "This endpoint only accepts POST requests", 400);
         }
 
     }
 
     // Helper method to send a response
-    private static void sendResponse(HttpExchange exchange, String response) throws IOException {
-        exchange.sendResponseHeaders(200, response.length());
-        try (OutputStream os = exchange.getResponseBody()) {
+    private static void sendResponse(HttpExchange exchange, String response, int status) {
+        OutputStream os = exchange.getResponseBody();
+        try {
+            exchange.sendResponseHeaders(status, response.length());
             os.write(response.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
