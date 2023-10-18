@@ -7,16 +7,17 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.example.Main;
 import org.example.dto.GameStepDTO;
-import org.example.dto.MessageDTO;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.stream.Stream;
 
 public class PostGameStepHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) {
+        if (!"/game-state".equals(httpExchange.getRequestURI().getPath())){
+            sendResponse(httpExchange,"Bad request",400);
+        }
         if ("POST".equals(httpExchange.getRequestMethod())) {
             // Read the request body as a JSON string
 
@@ -32,11 +33,12 @@ public class PostGameStepHandler implements HttpHandler {
             } catch (IOException e) {
                 sendResponse(httpExchange, "Server error", 500);
             }
-//            if (!gameStepDTO.getSign().equals("x")||!gameStepDTO.getSign().equals("y")){
-//                sendResponse(httpExchange,"Bad request. Sign can be only x or y",400);
-//            }
-            if (gameStepDTO.getX()<0&&gameStepDTO.getX()>2&&gameStepDTO.getX()<0&&gameStepDTO.getX()>2){
-                sendResponse(httpExchange,"Bad request. Coordinates must be between 0 and 2",400);
+            assert gameStepDTO != null;
+            if (!gameStepDTO.getSign().equals("x")&&!gameStepDTO.getSign().equals("y")){
+                sendResponse(httpExchange,"Bad request. Sign can be only x or y",400);
+            } else
+            if (gameStepDTO.getX() < 0 && gameStepDTO.getX() > 2 && gameStepDTO.getX() < 0 && gameStepDTO.getX() > 2) {
+                sendResponse(httpExchange, "Bad request. Coordinates must be between 0 and 2", 400);
             }
             Main.setGameStep(gameStepDTO);
             // Access the parsed data

@@ -7,5 +7,6 @@ public class MessageDTO {
 
     public String getMessage() {
         return message;
+
     }
 }
