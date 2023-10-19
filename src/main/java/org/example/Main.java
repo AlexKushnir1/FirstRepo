@@ -1,51 +1,69 @@
 package org.example;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-import org.example.handlers.PostDataHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dto.GameStepDTO;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import static spark.Spark.port;
+import static spark.Spark.post;
+
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        int port = 8080; // Port to listen on
+    private static String[][] gameField = new String[3][3];
 
-        // Create an HTTP server that listens on the specified port
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-
-        // Create a context for a simple "Hello, World!" response
-        server.createContext("/", new HelloWorldHandler());
-        server.createContext("/postdata", new PostDataHandler());
-        // Start the server
-        server.setExecutor(null); // Use the default executor
-        server.start();
-
-        System.out.println("Server is running on port " + port);
+    public static void main(String[] args) {
+        port(8080);
+        ObjectMapper objectMapper = new ObjectMapper();
+        post("/move", (request, response) -> {
+            try {
+                //gameStep -крок гри
+                GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
+                if (gameField[step.getX()][step.getY()] == null) {
+                    setStep(step);
+                    return "Received and processed the request.";
+                } else {
+                    return "Cell " + step.getX() + " : " + step.getY() + " is not empty";
+                }
+            } catch (JsonMappingException e) {
+                System.out.println(e);
+                response.status(400);
+                return "Bad request. Json can`t map data";
+            } catch (JsonProcessingException e) {
+                System.out.println(e);
+                response.status(400);
+                return "Bad request. Json can`t process";
+            }
+        });
+        post("/get", (request, response) -> {
+            try {
+                //Json that send to client
+                response.body(objectMapper.writeValueAsString(gameField));
+                return response.body();
+            } catch (JsonProcessingException e) {
+                response.status(400);
+                return "Bad request. Can`t write data to Json";
+            }
+        });
+        post("/new_game", (request, response) -> {
+            response.body("New game created/ for moving send Post request with coordinates");
+            gameField = new String[3][3];
+            return response.body();
+        });
     }
-}
 
-class HelloWorldHandler implements HttpHandler {
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        // Встановлюємо HTTP-заголовок "Content-Type" на "text/plain"
-        Headers headers = exchange.getResponseHeaders();
-        headers.set("Content-Type", "text/plain");
+    public static void setStep(GameStepDTO data) {
+        int x = data.getX();
+        int y = data.getY();
+        String sign = data.getSign();
 
-        // Встановлюємо HTTP-статус на "200 OK"
-        exchange.sendResponseHeaders(200, 0);
+        gameField[x][y] = sign;
 
-        // Отримуємо вихідний потік для відповіді
-        OutputStream os = exchange.getResponseBody();
-
-        // Відправляємо відповідь
-        String response = "Hello, World!";
-        os.write(response.getBytes());
-
-        // Завершуємо відправку відповіді
-        os.close();
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                System.out.print("   " + gameField[i][j]);
+            }
+            System.out.println(" ");
+        }
     }
 }
