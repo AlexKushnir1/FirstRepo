@@ -33,19 +33,18 @@ public class Main {
         });
 
         before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "*"); // Дозволяє запити з будь-якого джерела (*).
+            response.header("Access-Control-Allow-Origin", "*"); // Accept request from any port (*).
         });
 
         post("/move", (request, response) -> {
             if (gameOver) {
                 try {
-                    //gameStep -крок гри
                     GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
                     boolean isFull = Arrays.stream(gameField)
                             .flatMap(Arrays::stream)
                             .noneMatch(Objects::isNull);
 
-                    if (!(Objects.equals(step.getSign(), "x")) && !(Objects.equals(step.getSign(), "x"))) {
+                    if (!(Objects.equals(step.getSign(), "x")) && !(Objects.equals(step.getSign(), "o"))) {
                         response.status(400);
                         return "Sign must be x or o";
                     }
@@ -121,44 +120,6 @@ public class Main {
         }
 
         return winner;
-//        //check rows
-//        for (int i = 0; i <= 3; i++) {
-//            if (board[i][0] == null) {
-//                break;
-//            }
-//            String str = board[i][0];
-//            if (str.equals(board[i][1]) && str.equals(board[i][2])) {
-//                return getWinner(str);
-//            }
-//        }
-//        //check columns
-//        for (int j = 0; j <= 3; j++) {
-//            if (board[0][j] == null) {
-//                break;
-//            }
-//            String str = board[0][j];
-//            if (str.equals(board[1][j]) && str.equals(board[2][j])) {
-//                return getWinner(str);
-//            }
-//        }
-//        //check diagonals
-//        if (board[1][1] == null) {
-//            return "";
-//        }
-//        String str = board[1][1];
-//        if (str.equals(board[0][0]) && str.equals(board[2][2]) || (str.equals(board[0][2]) && str.equals(board[2][0]))) {
-//            return getWinner(str);
-//        }
-//        return "";
-    }
-
-    private static String getWinner(String str) {
-        gameOver = false;
-        if (str.equals("x")) {
-            return "x";
-        } else {
-            return "o";
-        }
     }
 
 
