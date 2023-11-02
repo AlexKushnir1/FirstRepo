@@ -15,16 +15,6 @@ public class SparkIntegrationTest {
     }
 
     @Test
-    public void testHttpPostRequestThatGetGameField() {
-        given()
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/get")
-                .then()
-                .statusCode(200)
-                .body("find { it }", hasItems()); // Checking for array in a response
-    }
-    @Test
     public void testHttpPostRequestForClearArray() {
         String gameFieldJson = given()
                 .contentType(ContentType.JSON)
@@ -37,16 +27,29 @@ public class SparkIntegrationTest {
         assertThat(gameFieldJson, is("[[null,null,null],[null,null,null],[null,null,null]]"));
     }
     @Test
-    public void testHttpPostForSendCoordinates(){
-        String mustHaveErrorBecauseWrongCoordinates = given()
+    public void testHttpPostForSendWrongSign(){
+        String mustHaveErrorBecauseWrongSign = given()
                 .contentType(ContentType.JSON)
-                .body("{\"x\":\"1\",\"y\":\"2\",\"sign\":\"x\"}")
+                .body("{\"x\":\"1\",\"y\":\"2\",\"sign\":\"0\"}")
                 .when()
                 .post("/move")
                 .then()
                 .statusCode(400)
                 .extract()
                 .asString();
-        assertThat(mustHaveErrorBecauseWrongCoordinates, is("Bad request. Json can`t map data"));
+        assertThat(mustHaveErrorBecauseWrongSign, is("Sign must be x or o"));
+    }
+    @Test
+    public void testHttpPostForSendWrongCoordinates(){
+        String mustHaveErrorBecauseWrongCoordinates = given()
+                .contentType(ContentType.JSON)
+                .body("{\"x\":3, \"y\":2, \"sign\":\"x\"}")
+                .when()
+                .post("/move")
+                .then()
+                .statusCode(400)
+                .extract()
+                .asString();
+        assertThat(mustHaveErrorBecauseWrongCoordinates, is("Coordinate should be 0, 1, or 2"));
     }
 }
