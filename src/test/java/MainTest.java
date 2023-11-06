@@ -1,18 +1,19 @@
 import org.example.Main;
 import org.example.dto.GameStepDTO;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MainTest {
     GameStepDTO data;
     String[][] gameField;
+    String nextSign;
 
     @BeforeEach
     void setUp() {
-        data = new GameStepDTO(1, 1, "x");
+        data = new GameStepDTO(1, 1);
+        nextSign = "x";
         gameField = new String[3][3];
         gameField[0][0] = "x";
         gameField[2][2] = "x";
@@ -20,7 +21,7 @@ public class MainTest {
 
     @Test
     void testMovingFunction() {
-        Main.setStep(data, gameField);
+        Main.setStep(data, gameField, nextSign);
         assertEquals("x", gameField[1][1]);
     }
 

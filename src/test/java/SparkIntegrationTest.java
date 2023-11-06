@@ -1,5 +1,9 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.example.GameResult;
+import org.example.dto.GameStepDTO;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class SparkIntegrationTest {
-
     @Before
     public void setup() {
         RestAssured.baseURI = "http://localhost:8080";
@@ -27,23 +30,10 @@ public class SparkIntegrationTest {
         assertThat(gameFieldJson, is("[[null,null,null],[null,null,null],[null,null,null]]"));
     }
     @Test
-    public void testHttpPostForSendWrongSign(){
-        String mustHaveErrorBecauseWrongSign = given()
-                .contentType(ContentType.JSON)
-                .body("{\"x\":\"1\",\"y\":\"2\",\"sign\":\"0\"}")
-                .when()
-                .post("/move")
-                .then()
-                .statusCode(400)
-                .extract()
-                .asString();
-        assertThat(mustHaveErrorBecauseWrongSign, is("Sign must be x or o"));
-    }
-    @Test
-    public void testHttpPostForSendWrongCoordinates(){
+    public void testHttpPostForSendWrongCoordinates() {
         String mustHaveErrorBecauseWrongCoordinates = given()
                 .contentType(ContentType.JSON)
-                .body("{\"x\":3, \"y\":2, \"sign\":\"x\"}")
+                .body("{\"x\":3, \"y\":2}")
                 .when()
                 .post("/move")
                 .then()

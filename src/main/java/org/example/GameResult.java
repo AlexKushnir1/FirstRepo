@@ -7,6 +7,17 @@ public class GameResult {
     private String[][] gameField;
     @JsonProperty
     private String winner;
+    @JsonProperty
+    private String sign;
+
+    public GameResult() {
+    }
+
+    public GameResult(String[][] gameField, String winner, String sign) {
+        this.gameField = gameField;
+        this.winner = winner;
+        this.sign = sign;
+    }
 
     public String[][] getGameField() {
         return gameField;
@@ -24,11 +35,11 @@ public class GameResult {
         this.winner = winner;
     }
 
-    public GameResult(String[][] gameField, String winner) {
-        this.gameField = gameField;
-        this.winner = winner;
+    public String getSign() {
+        return sign;
     }
 
-    public GameResult() {
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

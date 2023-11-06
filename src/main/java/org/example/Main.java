@@ -14,6 +14,7 @@ import static spark.Spark.*;
 public class Main {
     private static String[][] gameField = new String[3][3];
     private static boolean gameOver = true;
+    private static String nextSign = "x";
 
     public static void main(String[] args) {
         port(8080);
@@ -43,20 +44,17 @@ public class Main {
                     boolean isFull = Arrays.stream(gameField)
                             .flatMap(Arrays::stream)
                             .noneMatch(Objects::isNull);
-
-                    if (!(Objects.equals(step.getSign(), "x")) && !(Objects.equals(step.getSign(), "o"))) {
-                        response.status(400);
-                        return "Sign must be x or o";
-                    }
+                    
                     if (step.getY() < 0 || step.getY() > 2 || step.getX() < 0 || step.getX() > 2) {
                         response.status(400);
                         return "Coordinate should be 0, 1, or 2";
                     }
                     if (gameField[step.getX()][step.getY()] == null) {
-                        String[][] gameField1 = setStep(step, gameField);
-                        GameResult gameResult = new GameResult(gameField1, wins(gameField1));
+                        String[][] gameField1 = setStep(step, gameField, nextSign);
+                        GameResult gameResult = new GameResult(gameField1, wins(gameField1), nextSign);
                         System.out.println(gameResult.getWinner());
                         response.body(objectMapper.writeValueAsString(gameResult));
+                        nextSign = nextSign.equals("x") ? "o" : "x";
                         return response.body();
                     } else if (isFull) {
                         return "Tie";
@@ -77,6 +75,7 @@ public class Main {
         });
 
         post("/new_game", (request, response) -> {
+            nextSign = "x";
             gameField = new String[3][3];
             for (int i = 0; i <= 2; i++) {
                 for (int j = 0; j <= 2; j++) {
@@ -123,10 +122,9 @@ public class Main {
     }
 
 
-    public static String[][] setStep(GameStepDTO data, String[][] mainGameField) {
+    public static String[][] setStep(GameStepDTO data, String[][] mainGameField, String sign) {
         int x = data.getX();
         int y = data.getY();
-        String sign = data.getSign();
 
         mainGameField[x][y] = sign;
 
