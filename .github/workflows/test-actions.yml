@@ -19,10 +19,11 @@ jobs:
 #      - name: Compile project
 #        run: javac -cp $(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/fd/1) src/main/java/org/example/Main.java
       - name: run project
-        run: mvn exec:java -Dexec.mainClass=org.example.Main
+        run: mvn exec:java -Dexec.mainClass=org.example.Main $
       - name: run integration tests
         run: mvn -X -e -Dtest=SparkIntegrationTest test
-
+      - name: exit from console
+        run: exit
 
 
 
