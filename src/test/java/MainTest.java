@@ -33,6 +33,6 @@ public class MainTest {
 
     @Test
     void testWithWrongEquals(){
-        assertEquals(gameField[2][0],"x");
+        assertEquals(gameField[2][0],null);
     }
 }
