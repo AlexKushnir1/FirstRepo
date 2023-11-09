@@ -30,4 +30,9 @@ public class MainTest {
         gameField[1][1] = "x";
         assertEquals("x",Main.wins(gameField));
     }
+
+    @Test
+    void testWithWrongEquals(){
+        assertEquals(gameField[2][0],"x");
+    }
 }
