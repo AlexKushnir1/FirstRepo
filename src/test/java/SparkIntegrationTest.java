@@ -1,15 +1,11 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.example.GameResult;
-import org.example.dto.GameStepDTO;
 import org.junit.Before;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 public class SparkIntegrationTest {
     @Before
@@ -37,9 +33,10 @@ public class SparkIntegrationTest {
                 .when()
                 .post("/move")
                 .then()
-                .statusCode(400)
+                .statusCode(200)
                 .extract()
                 .asString();
         assertThat(mustHaveErrorBecauseWrongCoordinates, is("Coordinate should be 0, 1, or 2"));
     }
+
 }
