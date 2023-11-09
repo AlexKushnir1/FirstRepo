@@ -15,5 +15,6 @@ jobs:
       - name: Compile with Maven
         run: mvn test-compile
       - name: Run unit test with Maven
-        run: mvn -Dtest=MainTest test
+        run: mvn -X -e -Dtest=MainTest test
+
 
