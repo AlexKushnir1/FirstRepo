@@ -1,11 +1,13 @@
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.example.Main;
 import org.junit.Before;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SparkIntegrationTest {
     @Before
@@ -37,6 +39,11 @@ public class SparkIntegrationTest {
                 .extract()
                 .asString();
         assertThat(mustHaveErrorBecauseWrongCoordinates, is("Coordinate should be 0, 1, or 2"));
+    }
+
+    @org.junit.jupiter.api.Test
+    void testMovingFunction() {
+        assertEquals("0", 0);
     }
 
 }

@@ -17,7 +17,7 @@ jobs:
       - name: Run unit test with Maven
         run: mvn -X -e -Dtest=MainTest test
       #      - name: Compile project
-      #        run: javac -cp $(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/fd/1) src/main/java/org/example/Main.java-
+      #        run: javac -cp $(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/fd/1) src/main/java/org/example/Main.java
       - name: Run project and integration tests
         run: |
           mvn clean package
