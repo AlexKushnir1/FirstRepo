@@ -12,9 +12,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Compile with Maven
+      - name: Compile unit tests with Maven
         run: mvn test-compile
       - name: Run unit test with Maven
         run: mvn -X -e -Dtest=MainTest test
+      - name: Compile project
+        run: javac -cp $(mvn -q dependency:build-classpath -Dmdep.outputFile=/dev/fd/1) src/main/java/org/example/Main.java
+      - name: run project
+        run: mvn exec:java -Dexec.mainClass=org.example.Main
+      - name: run integration tests
+        run: mvn -X -e -Dtest=SparkIntegrationTest test
+
+
+
 
 
