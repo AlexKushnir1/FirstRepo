@@ -7,8 +7,13 @@ public class GameStepDTO {
     private int x;
     @JsonProperty
     private int y;
-    @JsonProperty
-    private String sign;
+    public GameStepDTO(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public GameStepDTO() {
+    }
 
     public int getX() {
         return x;
@@ -16,9 +21,5 @@ public class GameStepDTO {
 
     public int getY() {
         return y;
-    }
-
-    public String getSign() {
-        return sign;
     }
 }
