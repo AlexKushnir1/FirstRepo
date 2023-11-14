@@ -1,35 +1,33 @@
 package org.example;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
-
-import java.util.Arrays;
-import java.util.Objects;
+import org.example.game.GameLogic;
+import org.example.game.Sign;
 
 import static spark.Spark.*;
 
 
 public class Main {
-    private static String[][] gameField = new String[3][3];
-    private static boolean gameOver = true;
-    private static String nextSign = "x";
+    private static String[][] gameField;
+    private static Sign nextSign = Sign.X;
+    static ObjectMapper objectMapper = new ObjectMapper();
+    private static int arraySize = 3;
 
     public static void main(String[] args) {
+        gameField = GameLogic.setCleanArray(arraySize);
         port(8080);
-        ObjectMapper objectMapper = new ObjectMapper();
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
             if (accessControlRequestHeaders != null) {
                 response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
             }
-
             String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
             if (accessControlRequestMethod != null) {
                 response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
             }
-
             return "OK";
         });
 
@@ -38,102 +36,56 @@ public class Main {
         });
 
         post("/move", (request, response) -> {
-            if (gameOver) {
-                try {
-                    GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
-                    boolean isFull = Arrays.stream(gameField)
-                            .flatMap(Arrays::stream)
-                            .noneMatch(Objects::isNull);
-                    
-                    if (step.getY() < 0 || step.getY() > 2 || step.getX() < 0 || step.getX() > 2) {
-                        response.status(400);
-                        return "Coordinate should be 0, 1, or 2";
-                    }
-                    if (gameField[step.getX()][step.getY()] == null) {
-                        String[][] gameField1 = setStep(step, gameField, nextSign);
-                        GameResult gameResult = new GameResult(gameField1, wins(gameField1), nextSign);
-                        System.out.println(gameResult.getWinner());
-                        response.body(objectMapper.writeValueAsString(gameResult));
-                        nextSign = nextSign.equals("x") ? "o" : "x";
-                        return response.body();
-                    } else if (isFull) {
-                        return "Tie";
-                    } else {
-                        return "Cell " + step.getX() + " : " + step.getY() + " is not empty";
-                    }
-                } catch (JsonMappingException e) {
-                    System.out.println(e);
+            if (GameLogic.isGameOver()) {
+                response.status(400);
+                return "Game Over. Must start a new game";
+            }
+            try {
+                GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
+                if (GameLogic.isFull(gameField)) {
                     response.status(400);
-                    return "Bad request. Json can`t map data";
-                } catch (JsonProcessingException e) {
-                    System.out.println(e);
-                    response.status(400);
-                    return "Bad request. Json can`t process";
+                    GameLogic.setGameOver(false);
+                    return "Tie";
                 }
-            } else
-                return "Must start a new game";
+
+                if (GameLogic.isNumbWithinAnArray(step.getX(), step.getY(), arraySize)) {
+                    response.status(400);
+                    return "Coordinates must be within " + arraySize;
+                }
+                if (!(gameField[step.getX()][step.getY()] == null)) {
+                    response.status(400);
+                    return "Cell " + step.getX() + " : " + step.getY() + " is not empty";
+                }
+                GameLogic.setStep(step, gameField, nextSign);
+                response.body(objectMapper.writeValueAsString(new GameStateDTO(gameField, GameLogic.wins(gameField).getTitle(), nextSign.getTitle(), GameLogic.isFull(gameField))));
+                nextSign = nextSign.getNextSign();
+                return response.body();
+
+            } catch (JacksonException e) {
+                System.out.println(e);
+                response.status(400);
+                return "Bad request. Json can`t map data";
+            }
         });
 
-        post("/new_game", (request, response) -> {
-            nextSign = "x";
-            gameField = new String[3][3];
+        post("/new_game", (request, response) ->
+
+        {
+            nextSign = Sign.X;
+            gameField = GameLogic.setCleanArray(arraySize);
             for (int i = 0; i <= 2; i++) {
                 for (int j = 0; j <= 2; j++) {
                     System.out.print("   " + gameField[i][j]);
                 }
                 System.out.println(" ");
             }
-            gameOver = true;
+            GameLogic.setGameOver(false);
             response.body(objectMapper.writeValueAsString(gameField));
             return response.body();
         });
     }
 
-    public static String wins(String[][] board) {
-        String winner = "";
-
-        // Check rows
-        for (int i = 0; i < 3; i++) {
-            String str = board[i][0];
-            if (str != null && str.equals(board[i][1]) && str.equals(board[i][2])) {
-                winner = str;
-            }
-        }
-
-        // Check columns
-        for (int j = 0; j < 3; j++) {
-            String str = board[0][j];
-            if (str != null && str.equals(board[1][j]) && str.equals(board[2][j])) {
-                winner = str;
-            }
-        }
-
-        // Check diagonals
-        String center = board[1][1];
-        if (center != null && ((center.equals(board[0][0]) && center.equals(board[2][2])) || (center.equals(board[0][2]) && center.equals(board[2][0])))) {
-            winner = center;
-        }
-
-        if (!winner.isEmpty()) {
-            gameOver = true;
-        }
-
-        return winner;
-    }
-
-
-    public static String[][] setStep(GameStepDTO data, String[][] mainGameField, String sign) {
-        int x = data.getX();
-        int y = data.getY();
-
-        mainGameField[x][y] = sign;
-
-        for (int i = 0; i <= 2; i++) {
-            for (int j = 0; j <= 2; j++) {
-                System.out.print("   " + mainGameField[i][j]);
-            }
-            System.out.println(" ");
-        }
-        return mainGameField;
+    public static int getArraySize() {
+        return arraySize;
     }
 }
