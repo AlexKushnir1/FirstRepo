@@ -1,8 +1,10 @@
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
 import org.example.game.Game;
 import org.example.game.CellValue;
+import org.example.myExeptions.MyCustomExceptions;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +66,7 @@ public class MainTest {
     }
 
     @Test
-    void testMovingFunction() {
+    void testSetStepFunction() {
         game.newGameField();
         game.setStep(data);
         assertEquals("x", game.getGameField()[1][1]);
@@ -77,6 +79,16 @@ public class MainTest {
         game.setStep(new GameStepDTO(1, 1));
         game.setStep(new GameStepDTO(2, 2));
         assertEquals(CellValue.X, game.winner());
+    }
+    @Test
+    void movingTest() throws MyCustomExceptions {
+        game.newGameField();
+        GameStateDTO gameStateDTO = new GameStateDTO(new String[3][3], null, "x", false);
+        GameStateDTO gameStateFromMethodMove = game.move(data);
+        assertEquals(gameStateFromMethodMove.getTie(),gameStateDTO.getTie());
+        assertEquals(gameStateFromMethodMove.getWinner(),null );
+        assertTrue(gameStateFromMethodMove.getSign().equals(gameStateDTO.getSign()));
+        assertEquals(game.getGameField()[1][1],"x");
     }
 
     @Test

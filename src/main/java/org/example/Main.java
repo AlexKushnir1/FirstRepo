@@ -1,12 +1,14 @@
 package org.example;
 
 import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dto.GameStepDTO;
 import org.example.game.Game;
 import org.example.myExeptions.MyCustomExceptions;
 
 import static spark.Spark.*;
-
 public class Main {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static void main(String[] args) {
         Game game = new Game();
         game.newGameField();
@@ -29,7 +31,8 @@ public class Main {
 
         post("/move", (request, response) -> {
             try {
-                response.body(game.move(request));
+                GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
+                response.body(objectMapper.writeValueAsString(game.move(step)));
             } catch (MyCustomExceptions | JacksonException e) {
                 response.status(400);
                 return e;
@@ -39,7 +42,12 @@ public class Main {
 
         post("/new_game", (request, response) ->
         {
-            response.body(game.new_game());
+            try {
+                response.body(objectMapper.writeValueAsString(game.new_game()));
+            } catch (JacksonException e){
+                response.status(400);
+                return e;
+            }
             return response.body();
         });
     }

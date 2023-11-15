@@ -1,11 +1,8 @@
 package org.example.game;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
 import org.example.myExeptions.MyCustomExceptions;
-import spark.Request;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,12 +12,11 @@ public class Game {
     private CellValue cellValue = CellValue.X;
     private final int fieldSize = 3;
     private boolean gameOver = false;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Game() {
     }
 
-    public String move(Request request) throws MyCustomExceptions, JacksonException {
+    public GameStateDTO move(GameStepDTO step) throws MyCustomExceptions {
         if (gameOver) {
             throw new MyCustomExceptions("Game Over. Must start a new game");
         }
@@ -28,7 +24,7 @@ public class Game {
             gameOver = false;
             throw new MyCustomExceptions("Tie");
         }
-        GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
+
 
         if (!(isInRange(step.getX(), step.getY()))) {
             throw new MyCustomExceptions("Coordinates must be within " + fieldSize);
@@ -37,17 +33,17 @@ public class Game {
             throw new MyCustomExceptions("Cell " + step.getX() + " : " + step.getY() + " is not empty");
         }
         setStep(step);
-        String gameState = objectMapper.writeValueAsString(new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull()));
+        GameStateDTO gameState = (new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull()));
         cellValue = cellValue.getNextSign();
         return gameState;
 
     }
 
-    public String new_game() throws JacksonException {
+    public String[][] new_game() {
         cellValue = CellValue.X;
         newGameField();
         gameOver = false;
-        return objectMapper.writeValueAsString(getGameField());
+        return getGameField();
     }
 
     public Boolean isFull() {
