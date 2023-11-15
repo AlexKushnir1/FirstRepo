@@ -7,6 +7,7 @@ public class GameStepDTO {
     private int x;
     @JsonProperty
     private int y;
+
     public GameStepDTO(int x, int y) {
         this.x = x;
         this.y = y;

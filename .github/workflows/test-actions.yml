@@ -19,7 +19,3 @@ jobs:
         run: mvn -X -e -Dtest=MainTest test
       - name: exit from console
         run: exit
-
-
-
-
