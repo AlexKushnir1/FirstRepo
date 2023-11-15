@@ -4,20 +4,17 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
-import org.example.game.GameLogic;
+import org.example.game.Game;
 import org.example.game.Sign;
 
 import static spark.Spark.*;
 
-
 public class Main {
-    private static String[][] gameField;
-    private static Sign nextSign = Sign.X;
     static ObjectMapper objectMapper = new ObjectMapper();
-    private static int arraySize = 3;
 
     public static void main(String[] args) {
-        gameField = GameLogic.setCleanArray(arraySize);
+        Game game = new Game();
+        game.setCleanArray();
         port(8080);
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -36,29 +33,29 @@ public class Main {
         });
 
         post("/move", (request, response) -> {
-            if (GameLogic.isGameOver()) {
+            if (game.getGameOver()) {
                 response.status(400);
                 return "Game Over. Must start a new game";
             }
             try {
                 GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
-                if (GameLogic.isFull(gameField)) {
+                if (game.isFull()) {
                     response.status(400);
-                    GameLogic.setGameOver(false);
+                    game.setGameOver(false);
                     return "Tie";
                 }
 
-                if (GameLogic.isNumbWithinAnArray(step.getX(), step.getY(), arraySize)) {
+                if (!(game.isNumbWithinAnArray(step.getX(), step.getY()))) {
                     response.status(400);
-                    return "Coordinates must be within " + arraySize;
+                    return "Coordinates must be within " + game.getFieldSize();
                 }
-                if (!(gameField[step.getX()][step.getY()] == null)) {
+                if (game.isCellNotNull(step.getX(), step.getY())) {
                     response.status(400);
                     return "Cell " + step.getX() + " : " + step.getY() + " is not empty";
                 }
-                GameLogic.setStep(step, gameField, nextSign);
-                response.body(objectMapper.writeValueAsString(new GameStateDTO(gameField, GameLogic.wins(gameField).getTitle(), nextSign.getTitle(), GameLogic.isFull(gameField))));
-                nextSign = nextSign.getNextSign();
+                game.setStep(step);
+                response.body(objectMapper.writeValueAsString(new GameStateDTO(game.getGameField(), game.wins().getTitle(), game.getSign().getTitle(), game.isFull())));
+                game.setNextSign();
                 return response.body();
 
             } catch (JacksonException e) {
@@ -71,21 +68,17 @@ public class Main {
         post("/new_game", (request, response) ->
 
         {
-            nextSign = Sign.X;
-            gameField = GameLogic.setCleanArray(arraySize);
+            game.setSign(Sign.X);
+            game.setCleanArray();
             for (int i = 0; i <= 2; i++) {
                 for (int j = 0; j <= 2; j++) {
-                    System.out.print("   " + gameField[i][j]);
+                    System.out.print("   " + game.getGameField()[i][j]);
                 }
                 System.out.println(" ");
             }
-            GameLogic.setGameOver(false);
-            response.body(objectMapper.writeValueAsString(gameField));
+            game.setGameOver(false);
+            response.body(objectMapper.writeValueAsString(game.getGameField()));
             return response.body();
         });
-    }
-
-    public static int getArraySize() {
-        return arraySize;
     }
 }
