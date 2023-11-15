@@ -1,17 +1,17 @@
 package org.example.game;
 
-public enum Sign {
+public enum CellValue {
     X("x"),
     Y("y"),
     NULL(null);
 
     private String title;
 
-    Sign(String title) {
+    CellValue(String title) {
         this.title = title;
     }
 
-    public Sign getNextSign() {
+    public CellValue getNextSign() {
         return this.equals(X) ? Y : X;
     }
 

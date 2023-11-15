@@ -1,20 +1,15 @@
 package org.example;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.dto.GameStateDTO;
-import org.example.dto.GameStepDTO;
 import org.example.game.Game;
-import org.example.game.Sign;
+import org.example.myExeptions.MyCustomExceptions;
 
 import static spark.Spark.*;
 
 public class Main {
-    static ObjectMapper objectMapper = new ObjectMapper();
-
     public static void main(String[] args) {
         Game game = new Game();
-        game.setCleanArray();
+        game.newGameField();
         port(8080);
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -33,51 +28,18 @@ public class Main {
         });
 
         post("/move", (request, response) -> {
-            if (game.getGameOver()) {
-                response.status(400);
-                return "Game Over. Must start a new game";
-            }
             try {
-                GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
-                if (game.isFull()) {
-                    response.status(400);
-                    game.setGameOver(false);
-                    return "Tie";
-                }
-
-                if (!(game.isNumbWithinAnArray(step.getX(), step.getY()))) {
-                    response.status(400);
-                    return "Coordinates must be within " + game.getFieldSize();
-                }
-                if (game.isCellNotNull(step.getX(), step.getY())) {
-                    response.status(400);
-                    return "Cell " + step.getX() + " : " + step.getY() + " is not empty";
-                }
-                game.setStep(step);
-                response.body(objectMapper.writeValueAsString(new GameStateDTO(game.getGameField(), game.wins().getTitle(), game.getSign().getTitle(), game.isFull())));
-                game.setNextSign();
-                return response.body();
-
-            } catch (JacksonException e) {
-                System.out.println(e);
+                response.body(game.move(request));
+            } catch (MyCustomExceptions | JacksonException e) {
                 response.status(400);
-                return "Bad request. Json can`t map data";
+                return e;
             }
+            return response.body();
         });
 
         post("/new_game", (request, response) ->
-
         {
-            game.setSign(Sign.X);
-            game.setCleanArray();
-            for (int i = 0; i <= 2; i++) {
-                for (int j = 0; j <= 2; j++) {
-                    System.out.print("   " + game.getGameField()[i][j]);
-                }
-                System.out.println(" ");
-            }
-            game.setGameOver(false);
-            response.body(objectMapper.writeValueAsString(game.getGameField()));
+            response.body(game.new_game());
             return response.body();
         });
     }

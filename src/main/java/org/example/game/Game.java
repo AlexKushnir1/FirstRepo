@@ -1,21 +1,57 @@
 package org.example.game;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
+import org.example.myExeptions.MyCustomExceptions;
+import spark.Request;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Game {
     private String[][] gameField;
-    private Sign sign = Sign.X;
-    private int fieldSize = 3;
+    private CellValue cellValue = CellValue.X;
+    private final int fieldSize = 3;
     private boolean gameOver = false;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Game() {
     }
 
+    public String move(Request request) throws MyCustomExceptions, JacksonException {
+        if (gameOver) {
+            throw new MyCustomExceptions("Game Over. Must start a new game");
+        }
+        if (isFull()) {
+            gameOver = false;
+            throw new MyCustomExceptions("Tie");
+        }
+        GameStepDTO step = objectMapper.readValue(request.body(), GameStepDTO.class);
+
+        if (!(isInRange(step.getX(), step.getY()))) {
+            throw new MyCustomExceptions("Coordinates must be within " + fieldSize);
+        }
+        if (!(isCellNull(step.getX(), step.getY()))) {
+            throw new MyCustomExceptions("Cell " + step.getX() + " : " + step.getY() + " is not empty");
+        }
+        setStep(step);
+        String gameState = objectMapper.writeValueAsString(new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull()));
+        cellValue = cellValue.getNextSign();
+        return gameState;
+
+    }
+
+    public String new_game() throws JacksonException {
+        cellValue = CellValue.X;
+        newGameField();
+        gameOver = false;
+        return objectMapper.writeValueAsString(getGameField());
+    }
+
     public Boolean isFull() {
-        if (!(wins() == sign.NULL)) {
+        if (!(winner() == CellValue.NULL)) {
             return false;
         }
         return Arrays.stream(gameField)
@@ -23,32 +59,22 @@ public class Game {
                 .noneMatch(Objects::isNull);
     }
 
-    public Boolean isNumbWithinAnArray(int x, int y) {
+    public Boolean isInRange(int x, int y) {
         return (y >= 0 && y < fieldSize && x >= 0 && x < fieldSize);
     }
 
     public void setStep(GameStepDTO data) {
-        int x = data.getX();
-        int y = data.getY();
-
-        gameField[x][y] = sign.getTitle();
-
-        for (int i = 0; i <= 2; i++) {
-            for (int j = 0; j <= 2; j++) {
-                System.out.print("   " + gameField[i][j]);
-            }
-            System.out.println(" ");
-        }
+        gameField[data.getX()][data.getY()] = cellValue.getTitle();
     }
 
-    public Sign wins() {
-        Sign winner = Sign.NULL;
+    public CellValue winner() {
+        CellValue winner = CellValue.NULL;
 
         // Check rows
         for (int i = 0; i < 3; i++) {
             String str = gameField[i][0];
             if (str != null && str.equals(gameField[i][1]) && str.equals(gameField[i][2])) {
-                winner = Sign.valueOf(str.toUpperCase());
+                winner = CellValue.valueOf(str.toUpperCase());
             }
         }
 
@@ -56,30 +82,24 @@ public class Game {
         for (int j = 0; j < 3; j++) {
             String str = gameField[0][j];
             if (str != null && str.equals(gameField[1][j]) && str.equals(gameField[2][j])) {
-                winner = Sign.valueOf(str.toUpperCase());
+                winner = CellValue.valueOf(str.toUpperCase());
             }
         }
 
         // Check diagonals
         String center = gameField[1][1];
         if (center != null && ((center.equals(gameField[0][0]) && center.equals(gameField[2][2])) || (center.equals(gameField[0][2]) && center.equals(gameField[2][0])))) {
-            winner = Sign.valueOf(center.toUpperCase());
+            winner = CellValue.valueOf(center.toUpperCase());
         }
 
-        if (winner != Sign.NULL) {
+        if (winner != CellValue.NULL) {
             gameOver = true;
         }
-
         return winner;
     }
 
-    public boolean isCellNotNull(int x, int y) {
-        return !(gameField[x][y] == null);
-
-    }
-
-    public boolean getGameOver() {
-        return gameOver;
+    public boolean isCellNull(int x, int y) {
+        return (gameField[x][y] == null);
     }
 
     public int getFieldSize() {
@@ -90,23 +110,15 @@ public class Game {
         return gameField;
     }
 
-    public Sign getSign() {
-        return sign;
+    public CellValue getSign() {
+        return cellValue;
     }
 
-    public void setCleanArray() {
+    public void newGameField() {
         this.gameField = new String[fieldSize][fieldSize];
     }
 
     public void setNextSign() {
-        this.sign = sign.getNextSign();
-    }
-
-    public void setSign(Sign sign) {
-        this.sign = sign;
-    }
-
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
+        this.cellValue = cellValue.getNextSign();
     }
 }
