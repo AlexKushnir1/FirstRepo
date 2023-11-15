@@ -24,7 +24,7 @@ public class Game {
     }
 
     public Boolean isNumbWithinAnArray(int x, int y) {
-        return (y > 0 || y < fieldSize || x > 0 || x < fieldSize);
+        return (y >= 0 && y < fieldSize && x >= 0 && x < fieldSize);
     }
 
     public void setStep(GameStepDTO data) {

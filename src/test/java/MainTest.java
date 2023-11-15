@@ -97,7 +97,7 @@ public class MainTest {
     public void testHttpPostForSendWrongCoordinates() {
         String mustHaveErrorBecauseWrongCoordinates = given()
                 .contentType(ContentType.JSON)
-                .body("{\"x\":3, \"y\":2}")
+                .body("{\"x\":3, \"y\":0}")
                 .when()
                 .post("/move")
                 .then()
