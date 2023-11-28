@@ -26,7 +26,7 @@ public class Main {
         });
 
         before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "*"); // Accept request from any port (*).
+            response.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Accept request from any port (*).
         });
 
         post("/move", (request, response) -> {
@@ -40,14 +40,17 @@ public class Main {
             return response.body();
         });
 
-        post("/new_game", (request, response) ->
-        {
+        post("/new_game", (request, response) ->{
             try {
                 response.body(objectMapper.writeValueAsString(game.new_game()));
             } catch (JacksonException e){
                 response.status(400);
                 return e;
             }
+            return response.body();
+        });
+        get("/get_state",(request, response) ->{
+            response.body(objectMapper.writeValueAsString(game.getGameState()));
             return response.body();
         });
     }

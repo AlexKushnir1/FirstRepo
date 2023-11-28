@@ -33,7 +33,7 @@ public class Game {
             throw new MyCustomExceptions("Cell " + step.getX() + " : " + step.getY() + " is not empty");
         }
         setStep(step);
-        GameStateDTO gameState = (new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull()));
+        GameStateDTO gameState = getGameState();
         cellValue = cellValue.getNextSign();
         return gameState;
 
@@ -93,7 +93,9 @@ public class Game {
         }
         return winner;
     }
-
+    public GameStateDTO getGameState(){
+        return new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull());
+    }
     public boolean isCellNull(int x, int y) {
         return (gameField[x][y] == null);
     }
