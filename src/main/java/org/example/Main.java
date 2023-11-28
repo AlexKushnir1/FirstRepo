@@ -26,7 +26,7 @@ public class Main {
         });
 
         before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Accept request from any port (*).
+            response.header("Access-Control-Allow-Origin", "*"); // Accept request from any port (*).
         });
 
         post("/move", (request, response) -> {
