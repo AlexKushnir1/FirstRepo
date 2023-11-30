@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         Game game = new Game();
         game.newGameField();
-        System.out.println("started new game "+ game.getGameField());
+        System.out.println("started new game "+ game);
         port(8080);
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -27,7 +27,7 @@ public class Main {
         });
 
         before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "*"); // Accept request from any port (*).
+            response.header("Access-Control-Allow-Origin", "http://34.116.199.106:3000"); // Accept request from any port (*).
         });
 
         post("/move", (request, response) -> {
