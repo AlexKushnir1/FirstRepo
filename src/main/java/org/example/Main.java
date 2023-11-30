@@ -12,6 +12,7 @@ public class Main {
     public static void main(String[] args) {
         Game game = new Game();
         game.newGameField();
+        System.out.println("started new game "+ game.getGameField());
         port(8080);
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
