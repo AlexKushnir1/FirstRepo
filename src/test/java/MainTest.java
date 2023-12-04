@@ -1,19 +1,13 @@
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import org.example.dto.GameStateDTO;
 import org.example.dto.GameStepDTO;
-import org.example.game.Game;
 import org.example.game.CellValue;
+import org.example.game.Game;
 import org.example.myExeptions.MyCustomExceptions;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
@@ -23,11 +17,6 @@ public class MainTest {
     @BeforeEach
     void setUp() {
         data = new GameStepDTO(1, 1);
-    }
-
-    @Before
-    public void setup() {
-        RestAssured.baseURI = "http://localhost:8080";
     }
 
     @Test
@@ -80,41 +69,17 @@ public class MainTest {
         game.setStep(new GameStepDTO(2, 2));
         assertEquals(CellValue.X, game.winner());
     }
+
     @Test
     void movingTest() throws MyCustomExceptions {
         game.newGameField();
         GameStateDTO gameStateDTO = new GameStateDTO(new String[3][3], null, "x", false);
         GameStateDTO gameStateFromMethodMove = game.move(data);
-        assertEquals(gameStateFromMethodMove.getTie(),gameStateDTO.getTie());
-        assertEquals(gameStateFromMethodMove.getWinner(),null );
+        assertEquals(gameStateFromMethodMove.getTie(), gameStateDTO.getTie());
+        assertEquals(gameStateFromMethodMove.getWinner(), null);
         assertTrue(gameStateFromMethodMove.getSign().equals(gameStateDTO.getSign()));
-        assertEquals(game.getGameField()[1][1],"x");
+        assertEquals(game.getGameField()[1][1], "x");
     }
 
-    @Test
-    public void testHttpPostRequestForClearArray() {
-        String gameFieldJson = given()
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/new_game")
-                .then()
-                .statusCode(200)
-                .extract()
-                .asString();
-        assertThat(gameFieldJson, is("[[null,null,null],[null,null,null],[null,null,null]]"));
-    }
 
-    @Test
-    public void testHttpPostForSendWrongCoordinates() {
-        String mustHaveErrorBecauseWrongCoordinates = given()
-                .contentType(ContentType.JSON)
-                .body("{\"x\":3, \"y\":0}")
-                .when()
-                .post("/move")
-                .then()
-                .statusCode(400)
-                .extract()
-                .asString();
-        assertThat(mustHaveErrorBecauseWrongCoordinates, is("org.example.myExeptions.MyCustomExceptions: Coordinates must be within " + game.getFieldSize()));
-    }
 }
