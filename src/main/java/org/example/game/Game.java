@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Game {
-    private String[][] gameField;
     private CellValue cellValue = CellValue.X;
     private final int fieldSize = 3;
+    private String[][] gameField = new String[fieldSize][fieldSize];
     private boolean gameOver = false;
 
     public Game() {
@@ -33,9 +33,9 @@ public class Game {
             throw new MyCustomExceptions("Cell " + step.getX() + " : " + step.getY() + " is not empty");
         }
         setStep(step);
-        GameStateDTO gameState = getGameState();
+        GameStateDTO gameStateDTO = getGameState();
         cellValue = cellValue.getNextSign();
-        return gameState;
+        return gameStateDTO;
 
     }
 
