@@ -9,7 +9,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class IntegrationsIT {
+public class IntegrationTestIT {
 
     @Before
     public void setup() {

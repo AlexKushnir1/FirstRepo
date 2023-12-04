@@ -1,5 +1,5 @@
 name: test-actions
-on: pull_request
+on: push
 jobs:
   unit-testing:
     runs-on: ubuntu-latest
@@ -11,11 +11,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Compile unit tests with Maven
-        run: mvn test-compile
-      - name: run project
-        run: mvn exec:java -Dexec.mainClass=org.example.Main &
-      - name: Run unit and integration tests with Maven
-        run: mvn -X -e -Dtest=MainTest test
-      - name: exit from console
-        run: exit
+      - name: Run project in background
+        run: |
+            mvn exec:java -Dexec.mainClass=org.example.Main &
+            echo $! > my_project_pid.txt
+          background: true
+      - name: Run unit tests
+        run: mvn test
+
+      - name: Integration testing
+        run: mvn -Dskip.ut=true verify
+
+      - name: Stop running program
+        run: kill -SIGINT "$(cat my_project_pid.txt)"
