@@ -11,16 +11,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Run project in background
-        run: |
-          mvn exec:java -Dexec.mainClass=org.example.Main &
-          echo $! > my_project_pid.txt
-          background: true
-      - name: Run unit tests
+      - name: Compile unit tests with Maven
+        run: mvn test-compile
+      - name: run project
+        run: mvn exec:java -Dexec.mainClass=org.example.Main &
+      - name: Run unit test
         run: mvn test
-
       - name: Integration testing
         run: mvn -Dskip.ut=true verify
-
-      - name: Stop running program
-        run: kill -SIGINT "$(cat my_project_pid.txt)"
+      - name: exit from console
+        run: exit
