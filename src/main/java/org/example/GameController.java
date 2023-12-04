@@ -38,17 +38,28 @@ public class GameController {
         });
 
         get("/new_game", (req, res) -> {
-            UUID sessionId = UUID.fromString(req.queryParams("session_id"));
+            if (req.queryParams().isEmpty()) {
+                UUID sessionId = UUID.randomUUID();
+                sessions.put(sessionId, new HashMap<>());
 
-            if (!sessions.containsKey(sessionId)) {
-                res.status(400);
-                return "Invalid session_id";
+                UUID gameId = UUID.randomUUID();
+                Game newGame = new Game();
+                sessions.get(sessionId).put(gameId, newGame);
+                return "session_id=" + sessionId + "&game_id=" + gameId;
+            } else {
+                UUID sessionId = UUID.fromString(req.queryParams("session_id"));
+
+                if (!sessions.containsKey(sessionId)) {
+                    res.status(400);
+                    return "Invalid session_id";
+                }
+
+                UUID gameId = UUID.randomUUID();
+                Game newGame = new Game();
+                sessions.get(sessionId).put(gameId, newGame);
+                return "session_id=" + sessionId + "&game_id=" + gameId;
             }
 
-            UUID gameId = UUID.randomUUID();
-            Game newGame = new Game();
-            sessions.get(sessionId).put(gameId, newGame);
-            return gameId;
         });
 
         get("/get_state", (req, res) -> {
@@ -75,7 +86,9 @@ public class GameController {
                 step = objectMapper.readValue(req.body(), GameStepDTO.class);
             } catch (JacksonException e) {
                 res.status(400);
-                return "Invalid JSON format" + e;
+                System.out.println(e);
+                return "Invalid JSON format";
+
             }
             UUID sessionId = UUID.fromString(req.queryParams("session_id"));
             UUID gameId = UUID.fromString(req.queryParams("game_id"));
