@@ -13,9 +13,9 @@ jobs:
           cache: maven
       - name: Run project in background
         run: |
-            mvn exec:java -Dexec.mainClass=org.example.Main &
-            echo $! > my_project_pid.txt
-          background: true
+          mvn exec:java -Dexec.mainClass=org.example.Main &
+          echo $! > my_project_pid.txt
+        background: true
       - name: Run unit tests
         run: mvn test
 
