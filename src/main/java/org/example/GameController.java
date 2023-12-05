@@ -32,7 +32,7 @@ public class GameController {
         });
 
         before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "http://34.118.92.227:3000"); // Accept request from any port (*).
+            response.header("Access-Control-Allow-Origin", "*"); // Accept request from any port (*).
         });
 
         get("/new_session", (req, res) -> {
