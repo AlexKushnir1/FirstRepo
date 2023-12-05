@@ -94,7 +94,8 @@ public class Game {
         return winner;
     }
     public GameStateDTO getGameState(){
-        return new GameStateDTO(gameField, winner().getTitle(), cellValue.getTitle(), isFull());
+        return new GameStateDTO(gameField, winner().getTitle(),
+                cellValue.getTitle(), isFull());
     }
     public boolean isCellNull(int x, int y) {
         return (gameField[x][y] == null);

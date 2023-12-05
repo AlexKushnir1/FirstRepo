@@ -31,6 +31,10 @@ public class GameController {
             return "OK";
         });
 
+        before((request, response) -> {
+            response.header("Access-Control-Allow-Origin", "http://34.118.92.227:3000"); // Accept request from any port (*).
+        });
+
         get("/new_session", (req, res) -> {
             UUID sessionId = UUID.randomUUID();
             sessions.put(sessionId, new HashMap<>());
