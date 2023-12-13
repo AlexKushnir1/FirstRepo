@@ -2,18 +2,18 @@ package org.example.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GameStepDTO {
+public class StepForMoveDTO extends AbstractDataDTO{
     @JsonProperty
     private int x;
     @JsonProperty
     private int y;
 
-    public GameStepDTO(int x, int y) {
+    public StepForMoveDTO(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public GameStepDTO() {
+    public StepForMoveDTO() {
     }
 
     public int getX() {

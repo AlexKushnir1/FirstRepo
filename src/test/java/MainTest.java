@@ -1,5 +1,5 @@
 import org.example.dto.GameStateDTO;
-import org.example.dto.GameStepDTO;
+import org.example.dto.StepForMoveDTO;
 import org.example.game.CellValue;
 import org.example.game.Game;
 import org.example.myExeptions.MyCustomExceptions;
@@ -11,12 +11,12 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
-    GameStepDTO data;
+    StepForMoveDTO data;
     Game game = new Game();
 
     @BeforeEach
     void setUp() {
-        data = new GameStepDTO(1, 1);
+        data = new StepForMoveDTO(1, 1);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class MainTest {
     void arrayCleanUpTest() {
         //Add on a place [2][2] something and check it
         game.newGameField();
-        game.setStep(new GameStepDTO(2, 2));
+        game.setStep(new StepForMoveDTO(2, 2));
         assertEquals(game.getGameField()[2][2], "x");
         game.newGameField();
         assertNull(game.getGameField()[2][2]);
@@ -64,9 +64,9 @@ public class MainTest {
     @Test
     void testSearchingWinner() {
         game.newGameField();
-        game.setStep(new GameStepDTO(0, 0));
-        game.setStep(new GameStepDTO(1, 1));
-        game.setStep(new GameStepDTO(2, 2));
+        game.setStep(new StepForMoveDTO(0, 0));
+        game.setStep(new StepForMoveDTO(1, 1));
+        game.setStep(new StepForMoveDTO(2, 2));
         assertEquals(CellValue.X, game.winner());
     }
 

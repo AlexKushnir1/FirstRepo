@@ -1,7 +1,7 @@
 package org.example.game;
 
 import org.example.dto.GameStateDTO;
-import org.example.dto.GameStepDTO;
+import org.example.dto.StepForMoveDTO;
 import org.example.myExeptions.MyCustomExceptions;
 
 import java.util.Arrays;
@@ -16,7 +16,7 @@ public class Game {
     public Game() {
     }
 
-    public GameStateDTO move(GameStepDTO step) throws MyCustomExceptions {
+    public GameStateDTO move(StepForMoveDTO step) throws MyCustomExceptions {
         if (gameOver) {
             throw new MyCustomExceptions("Game Over. Must start a new game");
         }
@@ -59,7 +59,7 @@ public class Game {
         return (y >= 0 && y < fieldSize && x >= 0 && x < fieldSize);
     }
 
-    public void setStep(GameStepDTO data) {
+    public void setStep(StepForMoveDTO data) {
         gameField[data.getX()][data.getY()] = cellValue.getTitle();
     }
 
