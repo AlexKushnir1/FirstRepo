@@ -88,8 +88,10 @@ class WebSocketHandlerTest {
 
         System.out.println("Session id before sending getState: "+session);
         GetStateDTO getStateDTO = new GetStateDTO();
-        getStateDTO.setSession_id(session);
+        getStateDTO.setSessionId(session);
+        System.out.println("Session Id in get state dto: "+getStateDTO.getSessionId());
         try {
+            System.out.println("send from client get type: "+objectMapper.writeValueAsString(getStateDTO));
             client.send(objectMapper.writeValueAsString(getStateDTO));
         } catch (JsonProcessingException e) {
             client.send("Catched the error" + e);
@@ -102,7 +104,7 @@ class WebSocketHandlerTest {
 
         System.out.println("Session id before sending move: "+ session);
         MoveDTO move = new MoveDTO(1,2);
-        move.setSession_id(session);
+        move.setSessionId(session);
         try {
             client.send(objectMapper.writeValueAsString(move));
         } catch (JsonProcessingException e) {
@@ -164,7 +166,7 @@ class WebSocketHandlerTest {
 
         System.out.println("Session id before sending newGame: "+session);
         NewGameDTO newGameDTO = new NewGameDTO();
-        newGameDTO.setSession_id(session);
+        newGameDTO.setSessionId(session);
         try {
             client.send(objectMapper.writeValueAsString(newGameDTO));
         } catch (JsonProcessingException e) {

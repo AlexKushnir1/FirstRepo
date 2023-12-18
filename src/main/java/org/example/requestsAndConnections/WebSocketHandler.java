@@ -12,7 +12,6 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.UUID;
 
 
 public class WebSocketHandler extends WebSocketServer {
@@ -62,17 +61,18 @@ public class WebSocketHandler extends WebSocketServer {
             } else if (abstractMessageDTO instanceof GetStateDTO) {
                 GetStateDTO getStateDTO = (GetStateDTO) abstractMessageDTO;
                 System.out.println("Received getStateDTO: " + getStateDTO);
-                conn.send(objectMapper.writeValueAsString(gameController.getState(getStateDTO.getSession_id())));
+                conn.send(objectMapper.writeValueAsString(gameController.getLastGameState(getStateDTO.getSessionId())));
             } else if (abstractMessageDTO instanceof NewGameDTO) {
                 NewGameDTO newGameDTO = (NewGameDTO) abstractMessageDTO;
                 System.out.println("Received NewGameDTO: " + newGameDTO);
-                gameController.newGame(newGameDTO.getSession_id());
-                conn.send(objectMapper.writeValueAsString(gameController.newGame(newGameDTO.getSession_id())));
+                gameController.newGame(newGameDTO.getSessionId());
+                conn.send(objectMapper.writeValueAsString(gameController.newGame(newGameDTO.getSessionId())));
             } else {
                 conn.send("Invalid message");
             }
         } catch (IOException | MyCustomExceptions e) {
             conn.send(String.valueOf(e));
+            e.printStackTrace();
         }
     }
 

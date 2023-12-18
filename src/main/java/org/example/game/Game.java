@@ -7,8 +7,7 @@ import org.example.myExeptions.MyCustomExceptions;
 import java.util.Arrays;
 
 public class Game {
-    private CellValue cellValue;
-    private Sign sign = Sign.X;
+    private Sign currentSign = Sign.X;
     private final int fieldSize = 3;
     private CellValue[][] gameField = newGameField();
     private boolean gameOver = false;
@@ -16,7 +15,7 @@ public class Game {
     public Game() {
     }
 
-    public GameStateDTO move(MoveDTO step) throws MyCustomExceptions {
+    public GameStateDTO move(MoveDTO move) throws MyCustomExceptions {
         if (gameOver) {
             throw new MyCustomExceptions("Game Over. Must start a new game");
         }
@@ -25,15 +24,15 @@ public class Game {
             throw new MyCustomExceptions("Tie");
         }
 
-        if (!(isInRange(step.getX(), step.getY()))) {
+        if (!(isInRange(move.getX(), move.getY()))) {
             throw new MyCustomExceptions("Coordinates must be within " + fieldSize);
         }
-        if (!(isCellNull(step.getX(), step.getY()))) {
-            throw new MyCustomExceptions("Cell " + step.getX() + " : " + step.getY() + " is not empty");
+        if (!(isCellNull(move.getX(), move.getY()))) {
+            throw new MyCustomExceptions("Cell " + move.getX() + " : " + move.getY() + " is not empty");
         }
-        setStep(step);
+        setStep(move);
         GameStateDTO gameStateDTO = getGameState();
-        sign = sign.getNextSign();
+        currentSign = currentSign.changeSign();
         System.out.println(gameStateDTO);
         return gameStateDTO;
 
@@ -52,7 +51,7 @@ public class Game {
     }
 
     public void setStep(MoveDTO data) {
-        gameField[data.getX()][data.getY()] = cellValueFromSing(sign);
+        gameField[data.getX()][data.getY()] = cellValueFromSing(currentSign);
     }
 
     public CellValue winner() {
@@ -87,7 +86,7 @@ public class Game {
     }
     public GameStateDTO getGameState(){
         return new GameStateDTO(gameField, winner(),
-                sign, isFull());
+                currentSign, isFull());
     }
     public static CellValue cellValueFromSing(Sign sign){
         if (sign == Sign.X) {
@@ -102,16 +101,12 @@ public class Game {
         return (gameField[x][y] == CellValue.NULL);
     }
 
-    public int getFieldSize() {
-        return fieldSize;
-    }
-
     public CellValue[][] getGameField() {
         return gameField;
     }
 
-    public Sign getSign() {
-        return sign;
+    public Sign getCurrentSign() {
+        return currentSign;
     }
 
     public CellValue[][] newGameField() {
@@ -125,7 +120,7 @@ public class Game {
     }
 
     public void setNextSign() {
-        this.sign = sign.getNextSign();
+        this.currentSign = currentSign.changeSign();
     }
     public CellValue[][] newArray(int fieldSize) {
         CellValue[][] matrix = new CellValue[fieldSize][fieldSize];

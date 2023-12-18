@@ -22,7 +22,7 @@ public class MainTest {
     void setUp() {
         UUID session = gameController.newSession();
         data = new MoveDTO(1, 1);
-        data.setSession_id(session);
+        data.setSessionId(session);
         game = gameController.createAndPutNewGameToSessions(session);
     }
 
@@ -36,7 +36,7 @@ public class MainTest {
     @Test
     void signChangeTest() {
         game.setNextSign();
-        assertEquals(game.getSign(), Sign.Y);
+        assertEquals(game.getCurrentSign(), Sign.Y);
     }
 
     @Test

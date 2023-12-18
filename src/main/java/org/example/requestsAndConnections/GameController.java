@@ -24,7 +24,7 @@ public class GameController {
         return createAndPutNewGameToSessions(sessionId).getGameState();
     }
 
-    public GameStateDTO getState(UUID sessionId) throws MyCustomExceptions {
+    public GameStateDTO getLastGameState(UUID sessionId) throws MyCustomExceptions {
         if (!sessions.containsSession(sessionId)) {
             throw new MyCustomExceptions("Invalid session id");
         }
@@ -35,14 +35,15 @@ public class GameController {
     }
 
     public GameStateDTO move(MoveDTO dataForStep) throws MyCustomExceptions {
-        if (!sessions.containsSession(dataForStep.getSession_id())) {
+        if (sessions.containsSession(dataForStep.getSessionId())) {
+            if (!sessions.hasGames(dataForStep.getSessionId())) {
+                return createAndPutNewGameToSessions(dataForStep.getSessionId()).move(dataForStep);
+            }
+        }
+        else {
             throw new MyCustomExceptions("Invalid session id");
         }
-        if (!sessions.hasGames(dataForStep.getSession_id())) {
-
-            return createAndPutNewGameToSessions(dataForStep.getSession_id()).move(dataForStep);
-        }
-        Game game = getLastGameBySessionId(dataForStep.getSession_id());
+        Game game = getLastGameBySessionId(dataForStep.getSessionId());
         return game.move(dataForStep);
     }
 

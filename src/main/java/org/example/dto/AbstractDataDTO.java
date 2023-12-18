@@ -15,20 +15,20 @@ import java.util.UUID;
 
 public abstract class AbstractDataDTO {
     @JsonProperty
-    private UUID session_id;
+    private UUID sessionId;
 
-    public UUID getSession_id() {
-        return session_id;
+    public UUID getSessionId() {
+        return sessionId;
     }
 
-    public void setSession_id(UUID session_id) {
-        this.session_id = session_id;
+    public void setSessionId(UUID sessionId) {
+        this.sessionId = sessionId;
     }
 
     @Override
     public String toString() {
         return "AbstractDataDTO{" +
-                "session_id=" + session_id +
+                "session_id=" + sessionId +
                 '}';
     }
 }

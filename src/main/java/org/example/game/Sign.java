@@ -6,7 +6,7 @@ public enum Sign {
 
     Sign() {
     }
-    public Sign getNextSign() {
+    public Sign changeSign() {
         return this.equals(X) ? Y : X;
     }
 
