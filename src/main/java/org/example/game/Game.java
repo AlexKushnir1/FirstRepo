@@ -1,112 +1,133 @@
 package org.example.game;
 
-import org.example.dto.GameStepDTO;
+import org.example.dto.GameStateDTO;
+import org.example.dto.MoveDTO;
+import org.example.myExeptions.MyCustomExceptions;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Game {
-    private String[][] gameField;
-    private Sign sign = Sign.X;
-    private int fieldSize = 3;
+    private Sign currentSign = Sign.X;
+    private final int fieldSize = 3;
+    private CellValue[][] gameField = newGameField();
     private boolean gameOver = false;
 
     public Game() {
     }
 
-    public Boolean isFull() {
-        if (!(wins() == sign.NULL)) {
+    public GameStateDTO move(MoveDTO move) throws MyCustomExceptions {
+        if (gameOver) {
+            throw new MyCustomExceptions("Game Over. Must start a new game");
+        }
+        if (isFull()) {
+            gameOver = false;
+            throw new MyCustomExceptions("Tie");
+        }
+
+        if (!(isInRange(move.getX(), move.getY()))) {
+            throw new MyCustomExceptions("Coordinates must be within " + fieldSize);
+        }
+        if (!(isCellNull(move.getX(), move.getY()))) {
+            throw new MyCustomExceptions("Cell " + move.getX() + " : " + move.getY() + " is not empty");
+        }
+        setStep(move);
+        GameStateDTO gameStateDTO = getGameState();
+        currentSign = currentSign.changeSign();
+        System.out.println(gameStateDTO);
+        return gameStateDTO;
+
+    }
+
+    public boolean isFull() {
+        if (winner() != CellValue.NULL) {
             return false;
         }
         return Arrays.stream(gameField)
                 .flatMap(Arrays::stream)
-                .noneMatch(Objects::isNull);
+                .allMatch(value -> value == CellValue.X || value == CellValue.Y);
     }
-
-    public Boolean isNumbWithinAnArray(int x, int y) {
+    public Boolean isInRange(int x, int y) {
         return (y >= 0 && y < fieldSize && x >= 0 && x < fieldSize);
     }
 
-    public void setStep(GameStepDTO data) {
-        int x = data.getX();
-        int y = data.getY();
-
-        gameField[x][y] = sign.getTitle();
-
-        for (int i = 0; i <= 2; i++) {
-            for (int j = 0; j <= 2; j++) {
-                System.out.print("   " + gameField[i][j]);
-            }
-            System.out.println(" ");
-        }
+    public void setStep(MoveDTO data) {
+        gameField[data.getX()][data.getY()] = cellValueFromSing(currentSign);
     }
 
-    public Sign wins() {
-        Sign winner = Sign.NULL;
+    public CellValue winner() {
+        CellValue winner = CellValue.NULL;
 
         // Check rows
         for (int i = 0; i < 3; i++) {
-            String str = gameField[i][0];
-            if (str != null && str.equals(gameField[i][1]) && str.equals(gameField[i][2])) {
-                winner = Sign.valueOf(str.toUpperCase());
+            CellValue value = gameField[i][0];
+            if (value != null && value.equals(gameField[i][1]) && value.equals(gameField[i][2])) {
+                winner = value;
             }
         }
 
         // Check columns
         for (int j = 0; j < 3; j++) {
-            String str = gameField[0][j];
-            if (str != null && str.equals(gameField[1][j]) && str.equals(gameField[2][j])) {
-                winner = Sign.valueOf(str.toUpperCase());
+            CellValue value = gameField[0][j];
+            if (value != null && value.equals(gameField[1][j]) && value.equals(gameField[2][j])) {
+                winner = value;
             }
         }
 
         // Check diagonals
-        String center = gameField[1][1];
+        CellValue center = gameField[1][1];
         if (center != null && ((center.equals(gameField[0][0]) && center.equals(gameField[2][2])) || (center.equals(gameField[0][2]) && center.equals(gameField[2][0])))) {
-            winner = Sign.valueOf(center.toUpperCase());
+            winner = center;
         }
 
-        if (winner != Sign.NULL) {
+        if (winner != CellValue.NULL) {
             gameOver = true;
         }
-
         return winner;
     }
-
-    public boolean isCellNotNull(int x, int y) {
-        return !(gameField[x][y] == null);
-
+    public GameStateDTO getGameState(){
+        return new GameStateDTO(gameField, winner(),
+                currentSign, isFull());
+    }
+    public static CellValue cellValueFromSing(Sign sign){
+        if (sign == Sign.X) {
+            return CellValue.X;
+        } else if (sign == Sign.Y) {
+            return CellValue.Y;
+        } else {
+        return CellValue.NULL;
+        }
+    }
+    public boolean isCellNull(int x, int y) {
+        return (gameField[x][y] == CellValue.NULL);
     }
 
-    public boolean getGameOver() {
-        return gameOver;
-    }
-
-    public int getFieldSize() {
-        return fieldSize;
-    }
-
-    public String[][] getGameField() {
+    public CellValue[][] getGameField() {
         return gameField;
     }
 
-    public Sign getSign() {
-        return sign;
+    public Sign getCurrentSign() {
+        return currentSign;
     }
 
-    public void setCleanArray() {
-        this.gameField = new String[fieldSize][fieldSize];
+    public CellValue[][] newGameField() {
+        CellValue[][] matrix = new CellValue[fieldSize][fieldSize];
+
+        for (int i = 0; i < fieldSize; i++) {
+            Arrays.fill(matrix[i], CellValue.NULL);
+        }
+        gameField = matrix;
+        return matrix;
     }
 
     public void setNextSign() {
-        this.sign = sign.getNextSign();
+        this.currentSign = currentSign.changeSign();
     }
+    public CellValue[][] newArray(int fieldSize) {
+        CellValue[][] matrix = new CellValue[fieldSize][fieldSize];
 
-    public void setSign(Sign sign) {
-        this.sign = sign;
-    }
-
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
+        for (int i = 0; i < fieldSize; i++) {
+            Arrays.fill(matrix[i], CellValue.NULL);
+        }
+        return matrix;
     }
 }

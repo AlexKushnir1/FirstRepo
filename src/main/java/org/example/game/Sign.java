@@ -1,21 +1,13 @@
 package org.example.game;
 
 public enum Sign {
-    X("x"),
-    Y("y"),
-    NULL(null);
+    X,
+    Y;
 
-    private String title;
-
-    Sign(String title) {
-        this.title = title;
+    Sign() {
     }
-
-    public Sign getNextSign() {
+    public Sign changeSign() {
         return this.equals(X) ? Y : X;
     }
 
-    public String getTitle() {
-        return title;
-    }
 }

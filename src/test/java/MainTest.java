@@ -1,109 +1,98 @@
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import org.example.Main;
-import org.example.dto.GameStepDTO;
+import org.example.dto.GameStateDTO;
+import org.example.dto.MoveDTO;
+import org.example.game.CellValue;
 import org.example.game.Game;
 import org.example.game.Sign;
-import org.junit.Before;
+import org.example.myExeptions.MyCustomExceptions;
+import org.example.requestsAndConnections.GameController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.UUID;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
-    GameStepDTO data;
-    Game game = new Game();
+    MoveDTO data;
+    Game game;
+    GameController gameController =new GameController();
 
     @BeforeEach
     void setUp() {
-        data = new GameStepDTO(1, 1);
-    }
-
-    @Before
-    public void setup() {
-        RestAssured.baseURI = "http://localhost:8080";
+        UUID session = gameController.newSession();
+        data = new MoveDTO(1, 1);
+        data.setSessionId(session);
+        game = gameController.createAndPutNewGameToSessions(session);
     }
 
     @Test
     void setCleanArrayTest() {
-        game.setCleanArray();
-        String[][] expectedGameField = new String[3][3];
-        assertEquals(Arrays.deepEquals(game.getGameField(), expectedGameField), true);
+        game.newGameField();
+        CellValue[][] expectedGameField = game.newGameField();
+        assertTrue(Arrays.deepEquals(game.getGameField(), expectedGameField));
     }
 
     @Test
     void signChangeTest() {
         game.setNextSign();
-        assertEquals(game.getSign().getTitle().toLowerCase(), "y");
+        assertEquals(game.getCurrentSign(), Sign.Y);
     }
 
     @Test
     void arrayCleanUpTest() {
-        //Додати на місце [2][2] щось і перевірити чи він там є
-        game.setCleanArray();
-        game.setStep(new GameStepDTO(2, 2));
-        assertEquals(game.getGameField()[2][2], "x");
-        game.setCleanArray();
-        assertEquals(game.getGameField()[2][2], null);
+        //Add on a place [2][2] something and check it
+        game.newGameField();
+        assertEquals(game.getGameField()[2][2], CellValue.NULL);
+        game.setStep(new MoveDTO(2, 2));
+        assertEquals(game.getGameField()[2][2], CellValue.X);
+        game.newGameField();
+        assertEquals(game.getGameField()[2][2],CellValue.NULL);
     }
 
     @Test
     void arrayFullnessTest() {
-        //заповнити всі клітинки перевірити boolean isFull = true;
-        game.setCleanArray();
-        assertEquals(game.isFull(), false);
+        //feel all cells and check boolean isFull = true;
+        game.newGameField();
+        assertFalse(game.isFull());
     }
 
     @Test
-    void numberWithinAnArrayTest() {
-        assertEquals(game.isNumbWithinAnArray(2, 2), true);
+    void numberInRangeTest() {
+        assertEquals(game.isInRange(2, 2), true);
     }
 
     @Test
-    void testMovingFunction() {
-        game.setCleanArray();
+    void testSetStepFunction() {
+        game.newGameField();
         game.setStep(data);
-        assertEquals("x", game.getGameField()[1][1]);
+        assertEquals(CellValue.X, game.getGameField()[1][1]);
     }
 
     @Test
     void testSearchingWinner() {
-        game.setCleanArray();
-        game.setStep(new GameStepDTO(0, 0));
-        game.setStep(new GameStepDTO(1, 1));
-        game.setStep(new GameStepDTO(2, 2));
-        assertEquals(Sign.X, game.wins());
+        game.newGameField();
+        game.setStep(new MoveDTO(0, 0));
+        game.setStep(new MoveDTO(1, 1));
+        game.setStep(new MoveDTO(2, 2));
+        assertEquals(CellValue.X, game.winner());
     }
 
     @Test
-    public void testHttpPostRequestForClearArray() {
-        String gameFieldJson = given()
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/new_game")
-                .then()
-                .statusCode(200)
-                .extract()
-                .asString();
-        assertThat(gameFieldJson, is("[[null,null,null],[null,null,null],[null,null,null]]"));
+    void movingTest() throws MyCustomExceptions {
+        game.newGameField();
+        GameStateDTO gameStateDTO = new GameStateDTO(new CellValue[3][3], null, Sign.X, false);
+        GameStateDTO gameStateFromMethodMove = game.move(data);
+        assertEquals(gameStateFromMethodMove.getTie(), gameStateDTO.getTie());
+        assertEquals(gameStateFromMethodMove.getWinner(),CellValue.NULL);
+        assertEquals(gameStateFromMethodMove.getSign(), gameStateDTO.getSign());
+        assertEquals(game.getGameField()[1][1], CellValue.X);
     }
 
     @Test
-    public void testHttpPostForSendWrongCoordinates() {
-        String mustHaveErrorBecauseWrongCoordinates = given()
-                .contentType(ContentType.JSON)
-                .body("{\"x\":3, \"y\":0}")
-                .when()
-                .post("/move")
-                .then()
-                .statusCode(400)
-                .extract()
-                .asString();
-        assertThat(mustHaveErrorBecauseWrongCoordinates, is("Coordinates must be within " + game.getFieldSize()));
+    void fieldFilling(){
+        CellValue[][] field = game.newGameField();
+        game.newArray(3);
+        assertEquals(game.newArray(3)[1][1],field[1][1]);
     }
 }
