@@ -1,21 +1,17 @@
 package org.example.game;
 
 public enum CellValue {
-    X("x"),
-    Y("y"),
-    NULL(null);
+    X,
+    Y,
+    NULL;
 
     private String title;
 
-    CellValue(String title) {
-        this.title = title;
-    }
-
-    public CellValue getNextSign() {
-        return this.equals(X) ? Y : X;
+    CellValue() {
     }
 
     public String getTitle() {
         return title;
     }
+
 }

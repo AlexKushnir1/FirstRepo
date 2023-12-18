@@ -1,48 +1,50 @@
 package org.example.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.game.CellValue;
+import org.example.game.Sign;
 
 public class GameStateDTO {
     @JsonProperty
-    private String[][] gameField;
+    private CellValue[][] gameField;
     @JsonProperty
-    private String winner;
+    private CellValue winner;
     @JsonProperty
-    private String sign;
+    private Sign sign;
     @JsonProperty
     private Boolean tie;
 
     public GameStateDTO() {
     }
 
-    public GameStateDTO(String[][] gameField, String winner, String sign, Boolean tie) {
+    public GameStateDTO(CellValue[][] gameField, CellValue winner, Sign sign, Boolean tie) {
         this.gameField = gameField;
         this.winner = winner;
         this.sign = sign;
         this.tie = tie;
     }
 
-    public String[][] getGameField() {
+    public CellValue[][] getGameField() {
         return gameField;
     }
 
-    public void setGameField(String[][] gameField) {
+    public void setGameField(CellValue[][] gameField) {
         this.gameField = gameField;
     }
 
-    public String getWinner() {
+    public CellValue getWinner() {
         return winner;
     }
 
-    public void setWinner(String winner) {
+    public void setWinner(CellValue winner) {
         this.winner = winner;
     }
 
-    public String getSign() {
+    public Sign getSign() {
         return sign;
     }
 
-    public void setSign(String sign) {
+    public void setSign(Sign sign) {
         this.sign = sign;
     }
 

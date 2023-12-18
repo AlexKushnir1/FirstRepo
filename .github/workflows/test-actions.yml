@@ -13,11 +13,9 @@ jobs:
           cache: maven
       - name: Compile unit tests with Maven
         run: mvn test-compile
-      - name: run project
-        run: mvn exec:java -Dexec.mainClass=org.example.Main &
       - name: Run unit test
-        run: mvn test
+        run: mvn -Dtest=MainTest test
       - name: Integration testing
-        run: mvn failsafe:integration-test failsafe:verify
+        run: mvn -Dtest=WebSocketHandlerTest test
       - name: exit from console
         run: exit

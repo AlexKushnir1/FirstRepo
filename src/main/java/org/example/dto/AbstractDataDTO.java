@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = StepForMoveDTO.class, name = "move"),
+        @JsonSubTypes.Type(value = MoveDTO.class, name = "move"),
         @JsonSubTypes.Type(value = NewGameDTO.class, name = "newGame"),
         @JsonSubTypes.Type(value = GetStateDTO.class, name = "getState")
 })

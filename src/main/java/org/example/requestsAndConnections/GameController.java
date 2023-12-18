@@ -1,7 +1,7 @@
 package org.example.requestsAndConnections;
 
 import org.example.dto.GameStateDTO;
-import org.example.dto.StepForMoveDTO;
+import org.example.dto.MoveDTO;
 import org.example.game.Game;
 import org.example.game.Sessions;
 import org.example.myExeptions.MyCustomExceptions;
@@ -34,7 +34,7 @@ public class GameController {
         } else return newGame(sessionId);
     }
 
-    public GameStateDTO move(StepForMoveDTO dataForStep) throws MyCustomExceptions {
+    public GameStateDTO move(MoveDTO dataForStep) throws MyCustomExceptions {
         if (!sessions.containsSession(dataForStep.getSession_id())) {
             throw new MyCustomExceptions("Invalid session id");
         }

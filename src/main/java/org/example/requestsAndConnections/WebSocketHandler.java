@@ -1,6 +1,7 @@
 package org.example.requestsAndConnections;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dto.*;
@@ -11,6 +12,7 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 
 public class WebSocketHandler extends WebSocketServer {
@@ -26,7 +28,17 @@ public class WebSocketHandler extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println("Connection opened: " + conn);
-        conn.send(String.valueOf(gameController.newSession()));
+        SessionIdDTO sessionId = new SessionIdDTO();
+        sessionId.setSession_id(gameController.newSession());
+        System.out.println("Session id that will be sended" + sessionId.getSession_id());
+        try {
+            System.out.println(objectMapper.writeValueAsString(sessionId));
+            conn.send(objectMapper.writeValueAsString(sessionId));
+
+        } catch (JsonProcessingException e) {
+            conn.send("Json parsing error");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -41,9 +53,9 @@ public class WebSocketHandler extends WebSocketServer {
             DeserializationContext deserializationContext = new ObjectMapper().getDeserializationContext();
             AbstractDataDTO abstractMessageDTO = messageDeserializer.deserialize(jsonParser, deserializationContext);
             System.out.println(abstractMessageDTO.toString());
-
-            if (abstractMessageDTO instanceof StepForMoveDTO) {
-                StepForMoveDTO moveDTO = (StepForMoveDTO) abstractMessageDTO;
+            System.out.println("Server receive message :" +message);
+            if (abstractMessageDTO instanceof MoveDTO) {
+                MoveDTO moveDTO = (MoveDTO) abstractMessageDTO;
                 System.out.println("Received moveDTO: " + moveDTO);
                 ;
                 conn.send(objectMapper.writeValueAsString(gameController.move(moveDTO)));

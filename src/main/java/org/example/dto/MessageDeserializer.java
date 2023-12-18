@@ -19,7 +19,7 @@ public class MessageDeserializer extends JsonDeserializer<AbstractDataDTO> {
 
         switch (messageType) {
             case "move":
-                return codec.readValue(node.traverse(), StepForMoveDTO.class);
+                return codec.readValue(node.traverse(), MoveDTO.class);
             case "getState":
                 return codec.readValue(node.traverse(), GetStateDTO.class);
             case "newGame":
